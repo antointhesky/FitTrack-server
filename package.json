@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "knex": "^3.1.0",
+    "mysql2": "^3.11.3"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "knexfile.js",
+  "devDependencies": {},
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "migrate": "knex migrate:latest",
+    "rollback": "knex migrate:rollback",
+    "seed": "knex seed:run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/antointhesky/FitTrac-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antointhesky/FitTrac-server/issues"
+  },
+  "homepage": "https://github.com/antointhesky/FitTrac-server#readme",
+  "description": ""
+}
