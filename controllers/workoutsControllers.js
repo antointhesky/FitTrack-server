@@ -3,7 +3,6 @@ import configuration from "../knexfile.js";
 import { validateWorkoutData } from '../utils/validateData.js'; 
 const knex = initknex(configuration);
 
-// GET all workouts
 export const getAllWorkouts = async (_req, res) => {
   try {
     const workouts = await knex("workouts");
@@ -20,7 +19,6 @@ export const getAllWorkouts = async (_req, res) => {
   }
 };
 
-// POST a new workout
 export const createWorkout = async (req, res) => {
   const { name, duration, calories_burned, date_completed } = req.body;
 
@@ -47,7 +45,6 @@ export const createWorkout = async (req, res) => {
   }
 };
 
-// PUT (update) a workout by id
 export const updateWorkout = async (req, res) => {
   const workoutId = req.params.id;
 
@@ -74,7 +71,6 @@ export const updateWorkout = async (req, res) => {
   }
 };
 
-// DELETE a workout by id
 export const deleteWorkout = async (req, res) => {
   const workoutId = req.params.id;
 

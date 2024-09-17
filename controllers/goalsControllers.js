@@ -3,7 +3,6 @@ import configuration from "../knexfile.js";
 import { validateGoalData } from "../utils/validateData.js";
 const knex = initknex(configuration);
 
-// GET all goals
 export const getAllGoals = async (_req, res) => {
   try {
     const goals = await knex("goals");
@@ -20,7 +19,6 @@ export const getAllGoals = async (_req, res) => {
   }
 };
 
-// POST a new goal
 export const createGoal = async (req, res) => {
   const { name, target, current_progress, deadline_progress } = req.body;
 
@@ -47,7 +45,6 @@ export const createGoal = async (req, res) => {
   }
 };
 
-// PUT (update) a goal by id
 export const updateGoal = async (req, res) => {
   const goalId = req.params.id;
 

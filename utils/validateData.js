@@ -4,7 +4,6 @@ const validationRules = {
     requiredGoalFields: ["name", "target", "current_progress", "deadline_progress"],
   };
   
-  // Validate workout data
   export const validateWorkoutData = (data, isUpdate = false) => {
     const { requiredWorkoutFields } = validationRules;
   
@@ -23,7 +22,6 @@ const validationRules = {
     return { valid: true };
   };
   
-  // Validate goal data
   export const validateGoalData = (data, isUpdate = false) => {
     const { targetUnitRegex, requiredGoalFields } = validationRules;
   
