@@ -1,5 +1,6 @@
 import initknex from "knex";
 import configuration from "../knexfile.js";
+import { validateWorkoutData } from '../utils/validateData.js'; 
 const knex = initknex(configuration);
 
 // GET all workouts

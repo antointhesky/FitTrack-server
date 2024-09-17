@@ -4,33 +4,30 @@ export async function seed(knex) {
     {
       id: 1,
       name: "Cardio",
-      duration: "75 min",  
-      calories_burned: "700 cal",  
-      date_completed: "2024-09-08"  // 2 days ago
+      duration: "01:15:00",
+      calories_burned: 700,
+      date_completed: "2024-09-08",
     },
-    // Strength (performed 1 day ago)
     {
       id: 2,
       name: "Strength",
-      duration: "35 min",  
-      calories_burned: "450 cal",  
-      date_completed: "2024-09-09"  // 1 day ago
+      duration: "00:35:00",
+      calories_burned: 450,
+      date_completed: "2024-09-09",
     },
-    // Fat Burning (performed 3 days ago)
     {
       id: 3,
       name: "Fat Burning",
-      duration: "25 min",  
-      calories_burned: "450 cal",  
-      date_completed: "2024-09-07"  // 3 days ago
+      duration: "00:25:00",
+      calories_burned: 450,
+      date_completed: "2024-09-07",
     },
-    // Health Fitness (performed 4 days ago)
     {
       id: 4,
       name: "Health Fitness",
-      duration: "70 min",  
-      calories_burned: "250 cal",  
-      date_completed: "2024-09-06"  // 4 days ago
-    }
+      duration: "01:10:00",
+      calories_burned: 250,
+      date_completed: "2024-09-06",
+    },
   ]);
 }
