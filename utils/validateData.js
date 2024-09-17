@@ -1,0 +1,47 @@
+const validationRules = {
+    targetUnitRegex: /^[0-9]+( kg| cal| km| steps| workouts)$/,
+    requiredWorkoutFields: ["name", "duration", "calories_burned", "date_completed"],
+    requiredGoalFields: ["name", "target", "current_progress", "deadline_progress"],
+  };
+  
+  // Validate workout data
+  export const validateWorkoutData = (data, isUpdate = false) => {
+    const { requiredWorkoutFields } = validationRules;
+  
+    if (!isUpdate) {
+      for (let field of requiredWorkoutFields) {
+        if (!data[field]) {
+          return { valid: false, message: `The field ${field} is required.` };
+        }
+      }
+    }
+  
+    if (data.calories_burned && isNaN(Number(data.calories_burned))) {
+      return { valid: false, message: "Calories burned must be a number." };
+    }
+  
+    return { valid: true };
+  };
+  
+  // Validate goal data
+  export const validateGoalData = (data, isUpdate = false) => {
+    const { targetUnitRegex, requiredGoalFields } = validationRules;
+  
+    if (!isUpdate) {
+      for (let field of requiredGoalFields) {
+        if (!data[field]) {
+          return { valid: false, message: `The field ${field} is required.` };
+        }
+      }
+    }
+  
+    if (data.target && !targetUnitRegex.test(data.target)) {
+      return {
+        valid: false,
+        message: "Target must include a valid unit (e.g., 5 kg, 500 cal).",
+      };
+    }
+  
+    return { valid: true };
+  };
+  
