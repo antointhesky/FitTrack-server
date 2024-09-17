@@ -1,5 +1,6 @@
 import initknex from "knex";
 import configuration from "../knexfile.js";
+import { validateGoalData } from "../utils/validateData.js";
 const knex = initknex(configuration);
 
 // GET all goals
