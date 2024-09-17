@@ -1,7 +1,7 @@
 const validationRules = {
-    targetUnitRegex: /^[0-9]+( kg| cal| km| steps| workouts)$/,
+    targetUnitRegex: /^(kg|cal|km|steps|workouts)$/,
     requiredWorkoutFields: ["name", "duration", "calories_burned", "date_completed"],
-    requiredGoalFields: ["name", "target", "current_progress", "deadline_progress"],
+    requiredGoalFields: ["name", "target", "unit", "current_progress", "deadline_progress"],
   };
   
   export const validateWorkoutData = (data, isUpdate = false) => {
@@ -33,10 +33,14 @@ const validationRules = {
       }
     }
   
-    if (data.target && !targetUnitRegex.test(data.target)) {
+    if (data.target && isNaN(Number(data.target))) {
+      return { valid: false, message: "Target must be a number." };
+    }
+  
+    if (data.unit && !targetUnitRegex.test(data.unit)) {
       return {
         valid: false,
-        message: "Target must include a valid unit (e.g., 5 kg, 500 cal).",
+        message: "Unit must be one of the following: kg, cal, km, steps, workouts.",
       };
     }
   

@@ -20,7 +20,7 @@ export const getAllGoals = async (_req, res) => {
 };
 
 export const createGoal = async (req, res) => {
-  const { name, target, current_progress, deadline_progress } = req.body;
+  const { name, target, unit, current_progress, deadline_progress } = req.body;
 
   const validation = validateGoalData(req.body);
   if (!validation.valid) {
@@ -30,7 +30,8 @@ export const createGoal = async (req, res) => {
   try {
     const [newGoalId] = await knex("goals").insert({
       name,
-      target,
+      target, 
+      unit,   
       current_progress,
       deadline_progress,
     });
