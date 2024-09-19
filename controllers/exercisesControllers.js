@@ -3,13 +3,23 @@ import configuration from "../knexfile.js";
 import { calculateUpdatedWorkoutData } from "../utils/calculateUpdatedWorkoutData.js";
 const knex = initknex(configuration);
 
-export const getAllExercises = async (_req, res) => {
-  console.log("Fetching all exercises"); // Add this for debugging
+export const getAllExercises = async (req, res) => {
   try {
-    const exercises = await knex("exercises");
+    const { workout_type } = req.query;
+
+    let exercises;
+    if (workout_type) {
+      // Fetch exercises filtered by workout_type
+      exercises = await knex("exercises").where({ workout_type });
+    } else {
+      // Fetch all exercises if no workout_type is provided
+      exercises = await knex("exercises");
+    }
+
     if (!exercises.length) {
       return res.status(404).json({ message: "No exercises found" });
     }
+
     res.status(200).json(exercises);
   } catch (error) {
     res.status(500).json({

@@ -6,6 +6,9 @@ export function up(knex) {
     table.tinyint("reps").notNullable();
     table.time("duration").notNullable();
     table.integer("calories_burned").notNullable();
+
+    table.string("workout_type").notNullable(); // If you want to use 'workout_name', replace 'workout_type' with 'workout_name'
+
     table
       .bigInteger("workout_id")
       .unsigned()
@@ -13,6 +16,7 @@ export function up(knex) {
       .inTable("workouts")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
+
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table
       .timestamp("updated_at")
