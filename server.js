@@ -14,7 +14,6 @@ app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.static("public"));
 app.use(express.json());
 
-// Using singular 'session' everywhere
 app.use("/session", sessionRoutes);
 app.use("/exercises", exercisesRoutes); 
 app.use("/goals", goalsRoutes); 
