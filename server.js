@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import workoutsRoutes from "./routes/workoutsRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js";
 import goalsRoutes from "./routes/goalsRoutes.js";
 import exercisesRoutes from "./routes/exercisesRoutes.js"; 
 
@@ -14,14 +14,15 @@ app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.static("public"));
 app.use(express.json());
 
-
-app.use("/workouts", workoutsRoutes);
+// Using singular 'session' everywhere
+app.use("/session", sessionRoutes);
 app.use("/exercises", exercisesRoutes); 
 app.use("/goals", goalsRoutes); 
 
 app.listen(PORT, () => {
   console.log(`The app is listening on port ${PORT}`);
 });
+
 
 
 

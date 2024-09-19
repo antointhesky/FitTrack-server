@@ -144,3 +144,4 @@ export const deleteExerciseFromSession = async (req, res) => {
     });
   }
 };
+

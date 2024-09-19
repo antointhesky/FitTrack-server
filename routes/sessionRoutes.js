@@ -5,7 +5,7 @@ import {
   updateSession,
   deleteExerciseFromSession,
   addExerciseToSession,
-} from "../controllers/sessionsController.js";
+} from "../controllers/sessionControllers.js";
 
 const router = express.Router();
 
