@@ -5,6 +5,7 @@ import {
   updateSession,
   deleteExerciseFromSession,
   addExerciseToSession,
+  getWeeklyProgress,
 } from "../controllers/sessionControllers.js";
 
 const router = express.Router();
@@ -13,5 +14,8 @@ router.get("/:id", getSessionById);
 router.put("/:id", updateSession);
 router.post("/:id/exercise", addExerciseToSession);
 router.delete("/:id/exercise/:exerciseId", deleteExerciseFromSession);
+router.get("/progress/weekly", getWeeklyProgress);
+
+
 
 export default router;

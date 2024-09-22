@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import sessionRoutes from "./routes/sessionRoutes.js";
 import goalsRoutes from "./routes/goalsRoutes.js";
 import exercisesRoutes from "./routes/exercisesRoutes.js"; 
+import progressRoutes from "./routes/progressRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ app.use(express.json());
 app.use("/session", sessionRoutes);
 app.use("/exercises", exercisesRoutes); 
 app.use("/goals", goalsRoutes); 
+
+app.use("/progress", progressRoutes);
 
 app.listen(PORT, () => {
   console.log(`The app is listening on port ${PORT}`);
