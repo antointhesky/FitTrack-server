@@ -90,29 +90,31 @@ export const addExerciseToSession = async (req, res) => {
 // Update a session (e.g., edit exercises)
 export const updateSession = async (req, res) => {
   const sessionId = req.params.id;
-  const { workout_type, exercises } = req.body;
+  const { exercises } = req.body;
 
   try {
-    // Update session workout type
-    await knex("sessions").where({ id: sessionId }).update({ workout_type });
-
-    // Remove existing exercises and add the updated ones
+    // Remove existing exercises from the session
     await knex("session_exercises").where({ session_id: sessionId }).del();
 
+    // Add the updated exercises
     for (let exercise of exercises) {
       await knex("session_exercises").insert({
         session_id: sessionId,
         exercise_id: exercise.id,
+        workout_type: exercise.workout_type,
+        count: exercise.count,
       });
     }
 
     res.status(200).json({ message: "Session updated successfully" });
   } catch (error) {
     res.status(500).json({
-      message: `Error updating session: ${error.message}`,
+      message: "Error updating session",
+      error: error.message,
     });
   }
 };
+
 
 export const deleteExerciseFromSession = async (req, res) => {
   const { id: sessionId, exerciseId } = req.params;
