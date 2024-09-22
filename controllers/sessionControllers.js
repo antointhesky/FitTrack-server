@@ -5,31 +5,34 @@ const knex = initknex(configuration);
 
 // Create a new session
 export const createSession = async (req, res) => {
-  const { workout_type, exercises, date } = req.body;
+  const { exercises, date } = req.body;
 
   try {
-    // Create new session
+    // Insert the session (without workout_type at the session level)
     const [newSessionId] = await knex("sessions").insert({
-      workout_type,
-      date,
+      date, // Only date is being saved here
     });
 
-    // Insert each exercise into session_exercises
+    // Insert each exercise into session_exercises, attaching the workout_type for each
     for (let exercise of exercises) {
       await knex("session_exercises").insert({
         session_id: newSessionId,
         exercise_id: exercise.id,
+        workout_type: exercise.workout_type, // Store workout type per exercise
         count: exercise.count,
       });
     }
 
-    // Respond with session ID for frontend to handle redirection
     res.status(201).json({ message: "Session created successfully", session_id: newSessionId });
   } catch (error) {
-    console.error(`Error creating session: ${error.message}`);
-    res.status(500).json({ message: "Error creating session" });
+    console.error("Error creating session:", error);
+    res.status(500).json({
+      message: "Error creating session",
+      error: error.message,
+    });
   }
 };
+
 
 // Get a session by ID (with associated exercises)
 export const getSessionById = async (req, res) => {
