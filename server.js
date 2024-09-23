@@ -5,6 +5,7 @@ import sessionRoutes from "./routes/sessionRoutes.js";
 import goalsRoutes from "./routes/goalsRoutes.js";
 import exercisesRoutes from "./routes/exercisesRoutes.js"; 
 import progressRoutes from "./routes/progressRoutes.js";
+import workoutsRoutes from './routes/workoutsRoutes.js';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/session", sessionRoutes);
 app.use("/exercises", exercisesRoutes); 
 app.use("/goals", goalsRoutes); 
+app.use('/workouts', workoutsRoutes);
 
 app.use("/progress", progressRoutes);
 

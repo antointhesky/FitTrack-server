@@ -1,33 +1,25 @@
 export async function seed(knex) {
   await knex("workouts").del();
   await knex("workouts").insert([
-    {
-      id: 1,
-      name: "Cardio",
-      duration: "01:15:00",
-      calories_burned: 700,
-      date_completed: "2024-09-08",
+    { id: 1, 
+      name: 'Cardio', 
+      description: 'Boost your cardiovascular fitness', 
+      imageUrl: '/images/cardio.png' 
     },
-    {
-      id: 2,
-      name: "Strength",
-      duration: "00:35:00",
-      calories_burned: 450,
-      date_completed: "2024-09-09",
+    { id: 2, 
+      name: 'Strength', 
+      description: 'Build muscle and strength', 
+      imageUrl: '/images/strength.png' 
     },
-    {
-      id: 3,
-      name: "Fat Burning",
-      duration: "00:25:00",
-      calories_burned: 450,
-      date_completed: "2024-09-07",
+    { id: 3, 
+      name: 'Fat Burning', 
+      description: 'Lose fat with intense workouts', 
+      imageUrl: '/images/fat_burning.png' 
     },
-    {
-      id: 4,
-      name: "Health Fitness",
-      duration: "01:10:00",
-      calories_burned: 250,
-      date_completed: "2024-09-06",
+    { id: 4, 
+      name: 'Health Fitness', 
+      description: 'General wellness exercises', 
+      imageUrl: '/images/health_fitness.png' 
     },
   ]);
 }
