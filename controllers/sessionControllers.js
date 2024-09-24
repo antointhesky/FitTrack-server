@@ -4,15 +4,38 @@ import { calculateUpdatedWorkoutData } from "../utils/calculateUpdatedWorkoutDat
 const knex = initknex(configuration);
 
 export const createSession = async (req, res) => {
-  const { date } = req.body;
+  const { exercises } = req.body;
+
+  if (!Array.isArray(exercises) || exercises.length === 0) {
+    return res
+      .status(400)
+      .json({ message: "Exercises must be a non-empty array" });
+  }
+
+  const dateOnly = new Date().toISOString().split("T")[0];
 
   try {
-    const [newSessionId] = await knex("sessions").insert({ date });
+    const [newSessionId] = await knex("sessions").insert({
+      date: dateOnly,
+    });
 
-    res.status(201).json({ message: "Session created successfully", session_id: newSessionId });
+    // for (let exercise of exercises) {
+    await knex("session_exercises").insert({
+      session_id: newSessionId,
+      exercise_id: exercises[0].id,
+    });
+    // }
+
+    res.status(201).json({
+      message: "Session created successfully",
+      session_id: newSessionId,
+    });
   } catch (error) {
     console.error("Error creating session:", error);
-    res.status(500).json({ message: "Error creating session", error: error.message });
+    res.status(500).json({
+      message: "Error creating session",
+      error: error.message,
+    });
   }
 };
 
@@ -26,9 +49,18 @@ export const getSessionById = async (req, res) => {
     }
 
     const exercises = await knex("exercises")
-      .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
+      .join(
+        "session_exercises",
+        "exercises.id",
+        "session_exercises.exercise_id"
+      )
       .where("session_exercises.session_id", sessionId)
-      .select("exercises.*", "session_exercises.count"); 
+      .select(
+        "exercises.id",
+        "exercises.name",
+        "exercises.calories_burned",
+        "exercises.workout_type"
+      );
 
     res.status(200).json({ session, exercises });
   } catch (error) {
@@ -36,10 +68,13 @@ export const getSessionById = async (req, res) => {
   }
 };
 
-
 export const addExerciseToSession = async (req, res) => {
   const sessionId = req.params.id;
-  const { exerciseId, count } = req.body;
+  const { exerciseId } = req.body;
+
+  if (!exerciseId) {
+    return res.status(400).json({ message: "exerciseId is required" });
+  }
 
   try {
     await knex("session_exercises").insert({
@@ -47,22 +82,13 @@ export const addExerciseToSession = async (req, res) => {
       exercise_id: exerciseId,
     });
 
-    const exercises = await knex("exercises")
-      .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
-      .where("session_exercises.session_id", sessionId);
-    const { updatedDuration, updatedCalories } = calculateUpdatedWorkoutData(exercises);
-
-    await knex("sessions").where({ id: sessionId }).update({
-      duration: updatedDuration,
-      calories_burned: updatedCalories,
-    });
-
-    res.status(201).json({ message: "Exercise added to session and stats updated" });
+    res.status(201).json({ message: "Exercise added to session successfully" });
   } catch (error) {
-    res.status(500).json({ message: `Error adding exercise to session: ${error}` });
+    res
+      .status(500)
+      .json({ message: `Error adding exercise to session: ${error}` });
   }
 };
-
 
 export const updateSession = async (req, res) => {
   const sessionId = req.params.id;
@@ -80,7 +106,9 @@ export const updateSession = async (req, res) => {
 
     res.status(200).json({ message: "Session updated successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Error updating session", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating session", error: error.message });
   }
 };
 
@@ -88,14 +116,19 @@ export const deleteExerciseFromSession = async (req, res) => {
   const { id: sessionId, exerciseId } = req.params;
 
   try {
-    await knex("session_exercises").where({ session_id: sessionId, exercise_id: exerciseId }).del();
+    await knex("session_exercises")
+      .where({ session_id: sessionId, exercise_id: exerciseId })
+      .del();
 
-    res.status(200).json({ message: "Exercise removed from session successfully" });
+    res
+      .status(200)
+      .json({ message: "Exercise removed from session successfully" });
   } catch (error) {
-    res.status(500).json({ message: `Error removing exercise from session: ${error.message}` });
+    res.status(500).json({
+      message: `Error removing exercise from session: ${error.message}`,
+    });
   }
 };
-
 
 // export const getWeeklyProgress = async (req, res) => {
 //   try {
@@ -110,4 +143,3 @@ export const deleteExerciseFromSession = async (req, res) => {
 //     res.status(500).json({ message: "Error fetching weekly progress" });
 //   }
 // };
-
