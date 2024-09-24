@@ -2,21 +2,13 @@ export function up(knex) {
   return knex.schema.createTable("exercises", (table) => {
     table.bigIncrements("id").primary();
     table.string("name").notNullable();
-    table.tinyint("sets").notNullable();
-    table.tinyint("reps").notNullable();
+    table.string("body_part").notNullable();
+    table.string("workout_type").notNullable();
+    table.string("video_url");
+    table.integer("sets").notNullable();
+    table.integer("reps").notNullable();
     table.time("duration").notNullable();
     table.integer("calories_burned").notNullable();
-
-    table.string("workout_type").notNullable(); // If you want to use 'workout_name', replace 'workout_type' with 'workout_name'
-
-    table
-      .bigInteger("workout_id")
-      .unsigned()
-      .references("id")
-      .inTable("workouts")
-      .onUpdate("CASCADE")
-      .onDelete("CASCADE");
-
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table
       .timestamp("updated_at")
