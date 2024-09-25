@@ -1,13 +1,17 @@
 import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
+import knexInit from "knex"; // Make sure to import knex
+import configuration from "./knexfile.js"; // Adjust the path to your knexfile
 import sessionRoutes from "./routes/sessionRoutes.js";
 import goalsRoutes from "./routes/goalsRoutes.js";
 import exercisesRoutes from "./routes/exercisesRoutes.js";
 import progressRoutes from "./routes/progressRoutes.js";
 import workoutsRoutes from "./routes/workoutsRoutes.js";
+import cors from "cors";
+import dotenv from "dotenv";
 
 dotenv.config();
+
+const knex = knexInit(configuration); // Initialize knex with your configuration
 
 const app = express();
 const { PORT, FRONTEND_URL } = process.env;
@@ -16,37 +20,29 @@ app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.static("public"));
 app.use(express.json());
 
+// Define your routes and pass the initialized knex instance if needed
 app.use("/session", sessionRoutes);
 app.use("/exercises", exercisesRoutes);
 app.use("/goals", goalsRoutes);
 app.use("/workouts", workoutsRoutes);
+app.use("/progress", progressRoutes);
 
-app.get("/exercises", (req, res) => {
-  const workoutType = req.query.workout_type;
-
-  // Fetch exercises filtered by workout_type
+// Example route using knex directly in server.js if needed
+app.get("/exercises/bodyparts", (req, res) => {
   knex("exercises")
-    .where({ workout_type: workoutType })
-    .then((exercises) => {
-      if (exercises.length === 0) {
-        return res.status(404).json({ message: "No exercises found" });
+    .distinct("body_part")
+    .then((bodyParts) => {
+      if (!bodyParts.length) {
+        return res.status(404).json({ message: "No body parts found" });
       }
-      res.json(exercises);
+      res.json(bodyParts);
     })
     .catch((error) => {
-      res.status(500).json({ message: "Error fetching exercises", error });
+      console.error("Error fetching body parts:", error);
+      res.status(500).json({ message: "Error fetching body parts", error });
     });
 });
-
-
-app.use("/progress", progressRoutes);
 
 app.listen(PORT, () => {
   console.log(`The app is listening on port ${PORT}`);
 });
-
-// POST /worksouts/:id/excercise (also update the workout data - duration, calories etc)
-// GET /excercises
-// GET /excercises/:id
-// PUT /excercises/:id (also update the workout data  - duration, calories etc)
-// DELETE /excercises/:id (also update the workout data  - duration, calories etc)

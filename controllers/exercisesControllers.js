@@ -5,16 +5,19 @@ const knex = initknex(configuration);
 
 export const getAllExercises = async (req, res) => {
   try {
-    const { workout_type } = req.query;
+    const { workout_type, body_part } = req.query;
 
-    let exercises;
+    let query = knex("exercises");
+
     if (workout_type) {
-      // Fetch exercises filtered by workout_type
-      exercises = await knex("exercises").where({ workout_type });
-    } else {
-      // Fetch all exercises if no workout_type is provided
-      exercises = await knex("exercises");
+      query = query.where({ workout_type });
     }
+
+    if (body_part) {
+      query = query.where({ body_part });
+    }
+
+    const exercises = await query;
 
     if (!exercises.length) {
       return res.status(404).json({ message: "No exercises found" });
@@ -27,6 +30,7 @@ export const getAllExercises = async (req, res) => {
     });
   }
 };
+
 
 export const getSingleExercise = async (req, res) => {
   const exerciseId = req.params.id;
@@ -153,3 +157,16 @@ export const deleteExercise = async (req, res) => {
     });
   }
 };
+
+export const getDistinctBodyParts = async (req, res) => {
+  try {
+    const bodyParts = await knex("exercises").distinct("body_part");
+
+    res.status(200).json(bodyParts);
+  } catch (error) {
+    res.status(500).json({
+      message: `Error while fetching body parts: ${error}`,
+    });
+  }
+};
+
