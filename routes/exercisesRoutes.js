@@ -1,6 +1,7 @@
 import express from "express";
 import initknex from "knex";
 import configuration from "../knexfile.js";
+import { getAllExercises } from "../controllers/exercisesControllers.js";
 
 const knex = initknex(configuration);
 const router = express.Router();
@@ -20,5 +21,7 @@ router.get("/bodyparts", (req, res) => {
       res.status(500).json({ message: "Error fetching body parts", error });
     });
 });
+
+router.get("/", getAllExercises);
 
 export default router;
