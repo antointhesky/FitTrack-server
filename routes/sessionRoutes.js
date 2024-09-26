@@ -6,7 +6,7 @@ import {
   deleteExerciseFromSession,
   addExerciseToSession,
   getAllSessions,
-  deleteSession, 
+  deleteSession,
 } from "../controllers/sessionControllers.js";
 
 const router = express.Router();
@@ -15,7 +15,10 @@ router.get("/:id", getSessionById);
 router.put("/:id", updateSession);
 router.post("/:id/exercise", addExerciseToSession);
 router.delete("/:id/exercise/:exerciseId", deleteExerciseFromSession);
-router.get("/", getAllSessions);
+router.get("/", (req, res) => {
+  console.log("Fetching all sessions...");
+  getAllSessions(req, res);
+});
 router.delete("/:id", deleteSession);
 
 export default router;

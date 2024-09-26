@@ -10,6 +10,7 @@ export function up(knex) {
     table
       .timestamp("updated_at")
       .defaultTo(knex.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"));
+    table.bigInteger("exercise_id").unsigned().references("id").inTable("exercises").onDelete("CASCADE");
   });
 }
 

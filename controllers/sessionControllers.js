@@ -49,7 +49,11 @@ export const getSessionById = async (req, res) => {
     }
 
     const exercises = await knex("exercises")
-      .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
+      .join(
+        "session_exercises",
+        "exercises.id",
+        "session_exercises.exercise_id"
+      )
       .where("session_exercises.session_id", sessionId)
       .select(
         "exercises.id",
@@ -179,8 +183,8 @@ export const deleteSession = async (req, res) => {
 
     res.status(200).json({ message: "Session deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: `Error deleting session: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error deleting session: ${error.message}` });
   }
 };
-
-

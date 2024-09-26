@@ -7,13 +7,6 @@ export const getAllExercises = async (req, res) => {
   try {
     const { workout_type, body_part } = req.query;
 
-    console.log(
-      "Query params - workout_type:",
-      workout_type,
-      ", body_part:",
-      body_part
-    );
-
     let query = knex("exercises");
 
     if (workout_type) {
@@ -32,9 +25,8 @@ export const getAllExercises = async (req, res) => {
 
     res.status(200).json(exercises);
   } catch (error) {
-    console.error("Error while fetching exercises:", error.message);
     res.status(500).json({
-      message: `Error while fetching exercises: ${error.message}`,
+      message: `Error while fetching exercises: ${error}`,
     });
   }
 };

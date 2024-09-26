@@ -6,7 +6,6 @@ import { getAllExercises } from "../controllers/exercisesControllers.js";
 const knex = initknex(configuration);
 const router = express.Router();
 
-// Fetch distinct body parts
 router.get("/bodyparts", (req, res) => {
   knex("exercises")
     .distinct("body_part")
