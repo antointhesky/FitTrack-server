@@ -39,7 +39,6 @@ export const createSession = async (req, res) => {
   }
 };
 
-// Fetch session by ID
 export const getSessionById = async (req, res) => {
   const sessionId = req.params.id;
 
@@ -59,13 +58,12 @@ export const getSessionById = async (req, res) => {
         "exercises.workout_type"
       );
 
-    res.status(200).json({ session, exercises });
+    res.status(200).json({ ...session, exercises }); // Combine session with exercises
   } catch (error) {
     res.status(500).json({ message: `Error fetching session: ${error}` });
   }
 };
 
-// Add exercise to session
 export const addExerciseToSession = async (req, res) => {
   const sessionId = req.params.id;
   const { exerciseId } = req.body;
@@ -131,16 +129,36 @@ export const deleteExerciseFromSession = async (req, res) => {
   }
 };
 
-// Add this function to fetch all sessions
 export const getAllSessions = async (_req, res) => {
   try {
+    // Fetch all sessions
     const sessions = await knex("sessions").select("*");
 
     if (!sessions.length) {
       return res.status(404).json({ message: "No sessions found" });
     }
 
-    return res.status(200).json(sessions);
+    // For each session, fetch its exercises and add them to the session object
+    const sessionsWithExercises = await Promise.all(
+      sessions.map(async (session) => {
+        const exercises = await knex("exercises")
+          .join(
+            "session_exercises",
+            "exercises.id",
+            "session_exercises.exercise_id"
+          )
+          .where("session_exercises.session_id", session.id)
+          .select(
+            "exercises.id",
+            "exercises.name",
+            "exercises.calories_burned",
+            "exercises.workout_type"
+          );
+        return { ...session, exercises };
+      })
+    );
+
+    return res.status(200).json(sessionsWithExercises);
   } catch (error) {
     console.error("Error fetching sessions:", error.message);
     return res.status(500).json({
