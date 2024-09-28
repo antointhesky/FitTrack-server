@@ -97,7 +97,9 @@ export const deleteGoal = async (req, res) => {
 
     // If no rows were deleted, the goal ID doesn't exist
     if (!deletedRows) {
-      return res.status(404).json({ message: `Goal with ID ${goalId} not found` });
+      return res
+        .status(404)
+        .json({ message: `Goal with ID ${goalId} not found` });
     }
 
     return res.status(200).json({ message: "Goal deleted successfully" });
@@ -109,3 +111,45 @@ export const deleteGoal = async (req, res) => {
   }
 };
 
+// Add this to handle updating goals progress after a session
+// In updateGoalsProgress function (goalsControllers.js)
+export const updateGoalsProgress = async (req, res) => {
+  console.log("here");
+  const { selectedGoals, exercises } = req.body;
+  try {
+    for (const goalId of selectedGoals) {
+      const goal = await knex("goals").where({ id: goalId }).first();
+
+      if (!goal) {
+        return res
+          .status(404)
+          .json({ message: `Goal with ID ${goalId} not found` });
+      }
+
+      // Skip unnecessary validation for fields like name, target, etc.
+      const totalProgress = exercises.reduce(
+        (sum, exercise) => sum + exercise.calories_burned,
+        goal.current_progress
+      );
+
+      const updatedProgress = Math.min(totalProgress, goal.target);
+
+      // Use the new validation for just progress updates
+      // const validation = validateGoalProgressData({
+      //   current_progress: updatedProgress,
+      // });
+      // if (!validation.valid) {
+      //   return res.status(400).json({ message: validation.message });
+      // }
+
+      await knex("goals")
+        .where({ id: goalId })
+        .update({ current_progress: updatedProgress });
+    }
+
+    return res.status(200).json({ message: "Goals updated successfully!" });
+  } catch (error) {
+    console.error("Error updating goals progress:", error);
+    return res.status(500).json({ error: "Error updating goals progress." });
+  }
+};

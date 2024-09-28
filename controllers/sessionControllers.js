@@ -2,14 +2,11 @@ import initknex from "knex";
 import configuration from "../knexfile.js";
 const knex = initknex(configuration);
 
-// Create a new session
 export const createSession = async (req, res) => {
-  const { exercises } = req.body;
+  const { exercises, goal_ids } = req.body;
 
   if (!Array.isArray(exercises) || exercises.length === 0) {
-    return res
-      .status(400)
-      .json({ message: "Exercises must be a non-empty array" });
+    return res.status(400).json({ message: "Exercises must be a non-empty array" });
   }
 
   const dateOnly = new Date().toISOString().split("T")[0];
@@ -25,6 +22,16 @@ export const createSession = async (req, res) => {
         exercise_id: exercise.id,
       }))
     );
+
+    // Link session with goals
+    if (Array.isArray(goal_ids) && goal_ids.length > 0) {
+      await knex("session_goals").insert(
+        goal_ids.map((goal_id) => ({
+          session_id: newSessionId,
+          goal_id,
+        }))
+      );
+    }
 
     res.status(201).json({
       message: "Session created successfully",
@@ -62,7 +69,7 @@ export const getSessionById = async (req, res) => {
         "exercises.workout_type"
       );
 
-    res.status(200).json({ ...session, exercises }); // Combine session with exercises
+    res.status(200).json({ ...session, exercises }); 
   } catch (error) {
     res.status(500).json({ message: `Error fetching session: ${error}` });
   }
@@ -90,7 +97,6 @@ export const addExerciseToSession = async (req, res) => {
   }
 };
 
-// Update session
 export const updateSession = async (req, res) => {
   const sessionId = req.params.id;
   const { exercises } = req.body;
@@ -114,7 +120,6 @@ export const updateSession = async (req, res) => {
   }
 };
 
-// Delete exercise from session
 export const deleteExerciseFromSession = async (req, res) => {
   const { id: sessionId, exerciseId } = req.params;
 
@@ -135,14 +140,12 @@ export const deleteExerciseFromSession = async (req, res) => {
 
 export const getAllSessions = async (_req, res) => {
   try {
-    // Fetch all sessions
     const sessions = await knex("sessions").select("*");
 
     if (!sessions.length) {
       return res.status(404).json({ message: "No sessions found" });
     }
 
-    // For each session, fetch its exercises and add them to the session object
     const sessionsWithExercises = await Promise.all(
       sessions.map(async (session) => {
         const exercises = await knex("exercises")
@@ -156,8 +159,14 @@ export const getAllSessions = async (_req, res) => {
             "exercises.id",
             "exercises.name",
             "exercises.calories_burned",
-            "exercises.workout_type"
+            "exercises.workout_type",
+            "exercises.sets", 
+            "exercises.reps",
+            knex.raw("ROUND(TIME_TO_SEC(exercises.duration) / 60, 2) as duration") // Round to 2 decimal places
           );
+
+        console.log("Exercises for session:", exercises);
+
         return { ...session, exercises };
       })
     );
@@ -175,10 +184,7 @@ export const deleteSession = async (req, res) => {
   const sessionId = req.params.id;
 
   try {
-    // First delete all session_exercises associated with this session
     await knex("session_exercises").where({ session_id: sessionId }).del();
-
-    // Then delete the session itself
     await knex("sessions").where({ id: sessionId }).del();
 
     res.status(200).json({ message: "Session deleted successfully" });
@@ -186,5 +192,17 @@ export const deleteSession = async (req, res) => {
     res
       .status(500)
       .json({ message: `Error deleting session: ${error.message}` });
+  }
+};
+
+export const getCurrentSession = async (req, res) => {
+  try {
+    const session = await knex("sessions").where("status", "incomplete").first();
+    if (!session) {
+      return res.status(404).json({ message: "No ongoing session" });
+    }
+    res.status(200).json(session);
+  } catch (error) {
+    res.status(500).json({ message: `Error fetching current session: ${error.message}` });
   }
 };

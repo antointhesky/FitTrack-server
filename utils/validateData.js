@@ -46,4 +46,14 @@ const validationRules = {
   
     return { valid: true };
   };
+
+  export const validateGoalProgressData = (data) => {
+    // Only check if current_progress is valid and a number
+    if (data.current_progress && isNaN(Number(data.current_progress))) {
+      return { valid: false, message: "Current progress must be a number." };
+    }
+  
+    return { valid: true };
+  };
+  
   
