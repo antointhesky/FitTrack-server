@@ -23,18 +23,26 @@ export const getAllGoals = async (_req, res) => {
 export const createGoal = async (req, res) => {
   const { name, target, unit, current_progress, deadline_progress } = req.body;
 
+  // Validate the incoming goal data
   const validation = validateGoalData(req.body);
   if (!validation.valid) {
     return res.status(400).json({ message: validation.message });
   }
+
+  // Ensure the deadline_progress is in the format YYYY-MM-DD
+  const formattedDeadline = new Date(deadline_progress).toISOString().split('T')[0];
+
   try {
+    // Insert the new goal with formatted deadline
     const [newGoalId] = await knex("goals").insert({
       name,
       target,
       unit,
       current_progress,
-      deadline_progress,
+      deadline_progress: formattedDeadline, // Use the formatted date
     });
+
+    // Fetch the newly created goal from the database
     const newGoal = await knex("goals").where({ id: newGoalId }).first();
 
     return res.status(201).json(newGoal);
@@ -45,6 +53,7 @@ export const createGoal = async (req, res) => {
     });
   }
 };
+
 export const updateGoal = async (req, res) => {
   const goalId = req.params.id;
 
@@ -108,19 +117,19 @@ export const deleteGoal = async (req, res) => {
   }
 };
 
-
 export const updateGoalsProgress = async (req, res) => {
   const { exercises } = req.body;
 
-  // Log incoming request body
+  // Log the incoming request body for debugging
   console.log("Request Body:", req.body);
 
   try {
-    if (!exercises || !Array.isArray(exercises)) {
+    // Ensure exercises array is valid
+    if (!exercises || !Array.isArray(exercises) || exercises.length === 0) {
       return res.status(400).json({ message: "Invalid exercises data" });
     }
 
-    // Fetch all goals
+    // Fetch all goals from the database
     const goals = await knex("goals");
 
     if (!goals.length) {
@@ -131,7 +140,10 @@ export const updateGoalsProgress = async (req, res) => {
     for (const goal of goals) {
       let currentProgress = Number(goal.current_progress) || 0;
 
-      // Calculate the progress based on the unit of the goal
+      // Log the goal and its current progress for debugging
+      console.log(`Updating Goal: ${goal.name} (Current Progress: ${currentProgress}, Target: ${goal.target})`);
+
+      // Calculate progress based on the goal's unit
       const totalProgress = exercises.reduce((sum, exercise) => {
         if (goal.unit === 'cal' && exercise.calories_burned) {
           return sum + Number(exercise.calories_burned || 0);
@@ -140,19 +152,21 @@ export const updateGoalsProgress = async (req, res) => {
         } else if (goal.unit === 'sets' && exercise.sets) {
           return sum + Number(exercise.sets || 0);
         } else if (goal.unit === 'hours' && exercise.duration) {
-          // Assuming exercise.duration is in "hh:mm:ss" format, convert to hours
+          // Convert "hh:mm:ss" format to hours
           const [hours, minutes] = exercise.duration.split(':');
           return sum + (Number(hours || 0) + Number(minutes || 0) / 60);
-        } else if (goal.unit === 'name' && exercise.name) {
-          // For tracking based on exercise name, increment progress by 1 for each match
+        } else if (goal.unit === 'name' && exercise.name === goal.name) {
+          // Increment for exercise name match
           return sum + 1;
-        } else if (goal.unit === 'body part' && exercise.body_part) {
-          // For tracking based on body part, increment by 1 for each match
+        } else if (goal.unit === 'body part' && exercise.body_part === goal.name) {
+          // Increment for body part match
           return sum + 1;
-        } else if (goal.unit === 'workout type' && exercise.workout_type) {
-          // For tracking based on workout type, increment by 1 for each match
+        } else if (goal.unit === 'workout type' && exercise.workout_type === goal.name) {
+          // Increment for workout type match
           return sum + 1;
         }
+
+        // If no condition matches, return the existing sum
         return sum;
       }, currentProgress);
 
@@ -160,8 +174,12 @@ export const updateGoalsProgress = async (req, res) => {
 
       // Ensure current_progress is updated with a valid number
       if (isNaN(updatedProgress)) {
-        return res.status(500).json({ error: 'Invalid progress calculation, resulting in NaN' });
+        console.error(`Invalid progress calculation for goal: ${goal.name}`);
+        return res.status(500).json({ error: `Invalid progress calculation for goal: ${goal.name}` });
       }
+
+      // Log the updated progress
+      console.log(`New Progress for ${goal.name}: ${updatedProgress}`);
 
       // Update the goal progress in the database
       await knex("goals").where({ id: goal.id }).update({

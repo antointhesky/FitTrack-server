@@ -6,6 +6,7 @@ export function up(knex) {
     table.integer("current_progress").defaultTo(0);  
     table.string("unit").notNullable();  
     table.date("deadline_progress").notNullable();  
+    table.boolean("completed").defaultTo(false);  
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table
       .timestamp("updated_at")

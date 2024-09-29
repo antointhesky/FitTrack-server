@@ -14,7 +14,7 @@ export async function seed(knex) {
       name: "Burn 500 Calories",
       target: 500,
       current_progress: 150,
-      unit: "calories",  
+      unit: "cal",  
       deadline_progress: "2024-10-15",
     },
     {
@@ -22,7 +22,7 @@ export async function seed(knex) {
       name: "Accumulate 2 Hours of Cardio",
       target: 120, 
       current_progress: 30,
-      unit: "minutes", 
+      unit: "hours", 
       deadline_progress: "2024-11-01",
     },
   ]);

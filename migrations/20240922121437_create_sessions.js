@@ -5,7 +5,7 @@ export function up(knex) {
     table.datetime("date").notNullable();
     table.time("duration").defaultTo("00:00:00");
     table.integer("calories_burned").defaultTo(0);
-    table.boolean("is_draft").defaultTo(true); // Add is_draft column with default value as true
+    table.boolean("is_draft").defaultTo(true); 
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.timestamp("updated_at").defaultTo(
       knex.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")

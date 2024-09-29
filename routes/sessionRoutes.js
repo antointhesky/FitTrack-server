@@ -13,15 +13,15 @@ import {
 
 const router = express.Router();
 
-router.post("/", createSession); // Create a new session
+router.post("/", createSession); 
 router.post('/session', createOrUpdateSession);
-router.get("/current", getCurrentSession); // Fetch current draft session
-router.get("/:id", getSessionById); // Fetch session by ID
-router.patch("/:id", updateSession); // Update session (mark as completed)
-router.post("/:id/exercise", addExerciseToSession); // Add exercise to session
-router.delete("/:id/exercise/:exerciseId", deleteExerciseFromSession); // Remove exercise from session
-router.get("/", getAllSessions); // Fetch all sessions
-router.delete("/:id", deleteSession); // Delete session
+router.get("/current", getCurrentSession); 
+router.get("/:id", getSessionById); 
+router.patch("/:id", updateSession); 
+router.post("/:id/exercise", addExerciseToSession); 
+router.delete("/:id/exercise/:exerciseId", deleteExerciseFromSession); 
+router.get("/", getAllSessions); 
+router.delete("/:id", deleteSession); 
 
 export default router;
 

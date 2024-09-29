@@ -268,4 +268,3 @@ export const createOrUpdateSession = async (req, res) => {
     res.status(500).json({ message: "Error creating or updating session", error: error.message });
   }
 };
-
