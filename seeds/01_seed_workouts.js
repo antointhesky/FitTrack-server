@@ -3,7 +3,7 @@ export async function seed(knex) {
   await knex("workouts").insert([
     {
       id: 1,
-      name: "Cardio",
+      name: "HIIT",
       description: "Boost your cardiovascular fitness",
       imageUrl: "/images/cardio.jpg",
     },

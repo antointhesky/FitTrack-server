@@ -57,25 +57,21 @@ export const updateGoal = async (req, res) => {
         .json({ message: `Goal with ID ${goalId} not found` });
     }
 
-    console.log("Request Body:", req.body); // Log the incoming request body
+    // Ensure the correct types for fields
+    const updatedProgress = Number(req.body.current_progress);
+    const formattedDeadline = new Date(req.body.deadline_progress).toISOString().split('T')[0]; // 'yyyy-MM-dd' format
 
-    const validation = validateGoalData(req.body, true);
-    if (!validation.valid) {
-      return res.status(400).json({ message: validation.message });
-    }
-
+    // Update the goal
     await knex("goals")
       .where({ id: goalId })
       .update({
         name: req.body.name,
         target: req.body.target,
         unit: req.body.unit,
-        current_progress: req.body.current_progress,
-        deadline_progress: new Date(req.body.deadline_progress)
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " "),
+        current_progress: updatedProgress,
+        deadline_progress: formattedDeadline, // Ensure correct format for date
       });
+
     const updatedGoal = await knex("goals").where({ id: goalId }).first();
 
     return res.status(200).json(updatedGoal);
@@ -86,6 +82,7 @@ export const updateGoal = async (req, res) => {
     });
   }
 };
+
 
 // Add this function to handle goal deletion
 export const deleteGoal = async (req, res) => {
@@ -111,43 +108,68 @@ export const deleteGoal = async (req, res) => {
   }
 };
 
-// Add this to handle updating goals progress after a session
-// In updateGoalsProgress function (goalsControllers.js)
+
 export const updateGoalsProgress = async (req, res) => {
-  console.log("here");
-  const { selectedGoals, exercises } = req.body;
+  const { exercises } = req.body;
+
+  // Log incoming request body
+  console.log("Request Body:", req.body);
+
   try {
-    for (const goalId of selectedGoals) {
-      const goal = await knex("goals").where({ id: goalId }).first();
-
-      if (!goal) {
-        return res
-          .status(404)
-          .json({ message: `Goal with ID ${goalId} not found` });
-      }
-
-      // Skip unnecessary validation for fields like name, target, etc.
-      const totalProgress = exercises.reduce(
-        (sum, exercise) => sum + exercise.calories_burned,
-        goal.current_progress
-      );
-
-      const updatedProgress = Math.min(totalProgress, goal.target);
-
-      // Use the new validation for just progress updates
-      // const validation = validateGoalProgressData({
-      //   current_progress: updatedProgress,
-      // });
-      // if (!validation.valid) {
-      //   return res.status(400).json({ message: validation.message });
-      // }
-
-      await knex("goals")
-        .where({ id: goalId })
-        .update({ current_progress: updatedProgress });
+    if (!exercises || !Array.isArray(exercises)) {
+      return res.status(400).json({ message: "Invalid exercises data" });
     }
 
-    return res.status(200).json({ message: "Goals updated successfully!" });
+    // Fetch all goals
+    const goals = await knex("goals");
+
+    if (!goals.length) {
+      return res.status(404).json({ message: "No goals found" });
+    }
+
+    // Loop through all goals and update their progress based on exercises
+    for (const goal of goals) {
+      let currentProgress = Number(goal.current_progress) || 0;
+
+      // Calculate the progress based on the unit of the goal
+      const totalProgress = exercises.reduce((sum, exercise) => {
+        if (goal.unit === 'cal' && exercise.calories_burned) {
+          return sum + Number(exercise.calories_burned || 0);
+        } else if (goal.unit === 'reps' && exercise.reps) {
+          return sum + Number(exercise.reps || 0);
+        } else if (goal.unit === 'sets' && exercise.sets) {
+          return sum + Number(exercise.sets || 0);
+        } else if (goal.unit === 'hours' && exercise.duration) {
+          // Assuming exercise.duration is in "hh:mm:ss" format, convert to hours
+          const [hours, minutes] = exercise.duration.split(':');
+          return sum + (Number(hours || 0) + Number(minutes || 0) / 60);
+        } else if (goal.unit === 'name' && exercise.name) {
+          // For tracking based on exercise name, increment progress by 1 for each match
+          return sum + 1;
+        } else if (goal.unit === 'body part' && exercise.body_part) {
+          // For tracking based on body part, increment by 1 for each match
+          return sum + 1;
+        } else if (goal.unit === 'workout type' && exercise.workout_type) {
+          // For tracking based on workout type, increment by 1 for each match
+          return sum + 1;
+        }
+        return sum;
+      }, currentProgress);
+
+      const updatedProgress = Math.min(totalProgress, Number(goal.target));
+
+      // Ensure current_progress is updated with a valid number
+      if (isNaN(updatedProgress)) {
+        return res.status(500).json({ error: 'Invalid progress calculation, resulting in NaN' });
+      }
+
+      // Update the goal progress in the database
+      await knex("goals").where({ id: goal.id }).update({
+        current_progress: updatedProgress,
+      });
+    }
+
+    return res.status(200).json({ message: "Goals updated successfully" });
   } catch (error) {
     console.error("Error updating goals progress:", error);
     return res.status(500).json({ error: "Error updating goals progress." });
