@@ -2,7 +2,7 @@ import knex from "../knexfile.js";
 
 export const getProgressStats = async (req, res) => {
   try {
-    // Fetch all sessions and their exercises
+
     const sessions = await knex("sessions").select("id", "date");
     const sessionExercises = await knex("session_exercises")
       .join("exercises", "session_exercises.exercise_id", "exercises.id")
@@ -15,7 +15,6 @@ export const getProgressStats = async (req, res) => {
         "exercises.duration"
       );
 
-    // Fetch the goals and join them with session exercises
     const goals = await knex("goals")
       .join("exercises", "goals.unit", "=", "exercises.workout_type") // Assuming goals are related to workout type
       .join("session_exercises", "exercises.id", "=", "session_exercises.exercise_id")

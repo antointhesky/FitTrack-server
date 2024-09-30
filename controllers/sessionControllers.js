@@ -23,7 +23,6 @@ export const createSession = async (req, res) => {
       }))
     );
 
-    // Link session with goals
     if (Array.isArray(goal_ids) && goal_ids.length > 0) {
       await knex("session_goals").insert(
         goal_ids.map((goal_id) => ({
@@ -75,7 +74,6 @@ export const getSessionById = async (req, res) => {
   }
 };
 
-// Backend: Ensure exercises are saved correctly in the session
 export const addExerciseToSession = async (req, res) => {
   const sessionId = req.params.id;
   const { exerciseId } = req.body;
@@ -85,14 +83,12 @@ export const addExerciseToSession = async (req, res) => {
   }
 
   try {
-    // Check if session exists and is marked as draft
     const session = await knex("sessions").where({ id: sessionId, is_draft: true }).first();
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
     }
 
-    // Add exercise to session
     await knex("session_exercises").insert({
       session_id: sessionId,
       exercise_id: exerciseId,
@@ -100,7 +96,6 @@ export const addExerciseToSession = async (req, res) => {
 
     res.status(201).json({ message: "Exercise added to session successfully" });
   } catch (error) {
-    console.error("Error adding exercise to session:", error);
     res.status(500).json({ message: `Error adding exercise to session: ${error.message}` });
   }
 };
@@ -181,7 +176,7 @@ export const getAllSessions = async (_req, res) => {
 
     return res.status(200).json(sessionsWithExercises);
   } catch (error) {
-    console.error("Error fetching sessions:", error.message);
+
     return res.status(500).json({
       message: `Error encountered while fetching sessions: ${error.message}`,
     });
@@ -205,7 +200,7 @@ export const deleteSession = async (req, res) => {
 
 export const getCurrentSession = async (req, res) => {
   try {
-    // Fetch the most recent ongoing draft session (the latest session marked as is_draft: true)
+   
     const currentSession = await knex("sessions")
       .where({ is_draft: true })
       .orderBy("created_at", "desc")
@@ -215,7 +210,6 @@ export const getCurrentSession = async (req, res) => {
       return res.status(404).json({ message: "No ongoing session" });
     }
 
-    // Fetch the exercises associated with the current session
     const exercises = await knex("exercises")
       .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
       .where("session_exercises.session_id", currentSession.id)
@@ -232,25 +226,23 @@ export const createOrUpdateSession = async (req, res) => {
   const { exercises } = req.body;
 
   try {
-    // Check if there is an ongoing session (draft)
+
     let currentSession = await knex("sessions").where({ is_draft: true }).first();
 
     if (!currentSession) {
-      // If no ongoing session, create a new one
+
       const [newSessionId] = await knex("sessions").insert({
         date: new Date().toISOString().split("T")[0],
-        is_draft: true, // Mark as draft initially
+        is_draft: true, 
       });
 
       currentSession = { id: newSessionId };
     }
-
-    // Insert or update the exercises associated with this session
+    
     if (exercises && exercises.length > 0) {
-      // First, delete existing exercises for this session (if applicable)
+     
       await knex("session_exercises").where({ session_id: currentSession.id }).del();
 
-      // Add the new exercises
       await knex("session_exercises").insert(
         exercises.map((exercise) => ({
           session_id: currentSession.id,
@@ -264,7 +256,7 @@ export const createOrUpdateSession = async (req, res) => {
       session_id: currentSession.id,
     });
   } catch (error) {
-    console.error("Error creating or updating session:", error);
+    
     res.status(500).json({ message: "Error creating or updating session", error: error.message });
   }
 };

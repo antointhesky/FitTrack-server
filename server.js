@@ -16,19 +16,16 @@ const knex = knexInit(configuration);
 const app = express();
 const { PORT, FRONTEND_URL } = process.env;
 
-// Middleware
 app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.static("public"));
 app.use(express.json());
 
-// Register routes
 app.use("/session", sessionRoutes);
 app.use("/exercises", exercisesRoutes);
 app.use("/goals", goalsRoutes);
 app.use("/workouts", workoutsRoutes);
 app.use("/progress", progressRoutes);
 
-// Body parts route
 app.get("/exercises/bodyparts", (req, res) => {
   knex("exercises")
     .distinct("body_part")
@@ -39,11 +36,9 @@ app.get("/exercises/bodyparts", (req, res) => {
       res.json(bodyParts);
     })
     .catch((error) => {
-      console.error("Error fetching body parts:", error);
       res.status(500).json({ message: "Error fetching body parts", error });
     });
 });
 
 app.listen(PORT, () => {
-  console.log(`The app is listening on port ${PORT}`);
 });

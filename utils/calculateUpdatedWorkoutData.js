@@ -3,7 +3,7 @@ export const calculateUpdatedWorkoutData = (exercises) => {
     let totalCalories = 0;
   
     exercises.forEach((exercise) => {
-      totalDuration += parseTimeToMinutes(exercise.duration); // Assuming duration is stored in "HH:MM:SS" format
+      totalDuration += parseTimeToMinutes(exercise.duration); 
       totalCalories += exercise.calories_burned;
     });
   

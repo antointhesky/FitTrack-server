@@ -131,19 +131,15 @@ export const deleteExercise = async (req, res) => {
         .json({ message: `Exercise with ID ${exerciseId} not found` });
     }
 
-    // Delete the exercise
     await knex("exercises").where({ id: exerciseId }).del();
 
-    // Fetch updated exercises for the workout
     const exercises = await knex("exercises").where({
       workout_id: exercise.workout_id,
     });
 
-    // Recalculate the workout data
     const { updatedDuration, updatedCalories } =
       calculateUpdatedWorkoutData(exercises);
 
-    // Update the workout with new duration and calories
     await knex("workouts").where({ id: exercise.workout_id }).update({
       duration: updatedDuration,
       calories_burned: updatedCalories,
