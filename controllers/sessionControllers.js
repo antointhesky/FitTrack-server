@@ -75,28 +75,35 @@ export const getSessionById = async (req, res) => {
 };
 
 export const addExerciseToSession = async (req, res) => {
-  const sessionId = req.params.id;
-  const { exerciseId } = req.body;
+  // Log the request body to see what data is being passed in the request
+  console.log("Request body:", req.body);
 
-  if (!exerciseId) {
-    return res.status(400).json({ message: "exerciseId is required" });
+  const { exerciseId, sets, reps, duration, calories_burned } = req.body;
+  const sessionId = req.params.id;
+
+  // Check if all required fields are provided
+  if (!exerciseId || !sets || !reps || !duration || !calories_burned) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const session = await knex("sessions").where({ id: sessionId, is_draft: true }).first();
-
-    if (!session) {
-      return res.status(404).json({ message: "Session not found" });
-    }
-
+    // Insert the new exercise into the session_exercises table
     await knex("session_exercises").insert({
       session_id: sessionId,
       exercise_id: exerciseId,
+      sets,
+      reps,
+      duration,
+      calories_burned
     });
 
     res.status(201).json({ message: "Exercise added to session successfully" });
   } catch (error) {
-    res.status(500).json({ message: `Error adding exercise to session: ${error.message}` });
+    console.error("Error adding exercise to session:", error);
+    res.status(500).json({
+      message: "Error adding exercise to session",
+      error: error.message
+    });
   }
 };
 

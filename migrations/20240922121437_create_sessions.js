@@ -1,4 +1,3 @@
-// log a user’s workout with the exercises they’ve completed.
 export function up(knex) {
   return knex.schema.createTable("sessions", (table) => {
     table.bigIncrements("id").primary();

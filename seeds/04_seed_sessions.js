@@ -1,0 +1,118 @@
+export async function seed(knex) {
+  await knex("sessions").del();
+  await knex("sessions").insert([
+    {
+      id: 1,
+      date: "2023-09-01",
+      duration: "00:30:00",
+      calories_burned: 300,
+      is_draft: false,
+    },
+    {
+      id: 2,
+      date: "2023-09-01",
+      duration: "00:45:00",
+      calories_burned: 450,
+      is_draft: false,
+    },
+    {
+      id: 3,
+      date: "2023-09-03",
+      duration: "01:00:00",
+      calories_burned: 600,
+      is_draft: false,
+    },
+    {
+      id: 4,
+      date: "2023-09-05",
+      duration: "00:35:00",
+      calories_burned: 350,
+      is_draft: false,
+    },
+    {
+      id: 5,
+      date: "2023-09-07",
+      duration: "00:25:00",
+      calories_burned: 250,
+      is_draft: false,
+    },
+    {
+      id: 6,
+      date: "2023-09-07",
+      duration: "00:40:00",
+      calories_burned: 400,
+      is_draft: false,
+    },
+    {
+      id: 7,
+      date: "2023-09-10",
+      duration: "00:55:00",
+      calories_burned: 550,
+      is_draft: false,
+    },
+    {
+      id: 8,
+      date: "2023-09-12",
+      duration: "00:30:00",
+      calories_burned: 300,
+      is_draft: false,
+    },
+    {
+      id: 9,
+      date: "2023-09-15",
+      duration: "01:10:00",
+      calories_burned: 700,
+      is_draft: false,
+    },
+    {
+      id: 10,
+      date: "2023-09-17",
+      duration: "00:45:00",
+      calories_burned: 450,
+      is_draft: false,
+    },
+    {
+      id: 11,
+      date: "2023-09-19",
+      duration: "00:50:00",
+      calories_burned: 500,
+      is_draft: false,
+    },
+    {
+      id: 12,
+      date: "2023-09-21",
+      duration: "01:20:00",
+      calories_burned: 800,
+      is_draft: false,
+    },
+    {
+      id: 13,
+      date: "2023-09-23",
+      duration: "00:35:00",
+      calories_burned: 350,
+      is_draft: false,
+    },
+    {
+      id: 14,
+      date: "2023-09-25",
+      duration: "00:45:00",
+      calories_burned: 450,
+      is_draft: false,
+    },
+    {
+      id: 15,
+      date: "2023-09-27",
+      duration: "01:05:00",
+      calories_burned: 650,
+      is_draft: false,
+    },
+    {
+      id: 16,
+      date: "2023-09-27",
+      duration: "00:55:00",
+      calories_burned: 550,
+      is_draft: false,
+    },
+  ]);
+}
+

@@ -3,6 +3,10 @@ export function up(knex) {
     table.bigIncrements("id").primary();
     table.bigInteger("session_id").unsigned().notNullable();
     table.bigInteger("exercise_id").unsigned().notNullable();
+    table.integer("sets").notNullable();
+    table.integer("reps").notNullable();
+    table.string("duration").notNullable();
+    table.integer("calories_burned").notNullable();
     table
       .foreign("session_id")
       .references("id")

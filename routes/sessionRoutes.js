@@ -24,4 +24,3 @@ router.get("/", getAllSessions);
 router.delete("/:id", deleteSession); 
 
 export default router;
-
