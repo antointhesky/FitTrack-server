@@ -5,28 +5,36 @@ const knex = initknex(configuration);
 
 export const getAllExercises = async (req, res) => {
   try {
-    const { workout_type, body_part } = req.query;
+    console.log("⚡ Fetching exercises from database..."); // Debug log
 
+    const { workout_type, body_part } = req.query;
     let query = knex("exercises");
 
     if (workout_type) {
       query = query.where({ workout_type });
+      console.log(`🔎 Filtering by workout_type: ${workout_type}`);
     }
 
     if (body_part) {
       query = query.where({ body_part });
+      console.log(`🔎 Filtering by body_part: ${body_part}`);
     }
 
     const exercises = await query;
 
     if (!exercises.length) {
+      console.warn("⚠️ No exercises found for given filters.");
       return res.status(404).json({ message: "No exercises found" });
     }
 
+    console.log(`✅ Successfully fetched ${exercises.length} exercises.`);
     res.status(200).json(exercises);
   } catch (error) {
+    console.error("❌ Error while fetching exercises:", error); // Log full error
+
     res.status(500).json({
-      message: `Error while fetching exercises: ${error}`,
+      message: "Error while fetching exercises",
+      error: error.message || error, // Ensure detailed error response
     });
   }
 };

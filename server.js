@@ -22,6 +22,14 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Test Database Connection
+knex.raw("SELECT 1")
+  .then(() => console.log("✅ Successfully connected to the database!"))
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err.message);
+    process.exit(1); // Stop the server if DB connection fails
+  });
+
 // Updated CORS configuration
 const { PORT = 5050, FRONTEND_URL = "http://localhost:5173" } = process.env;
 app.use(cors({
