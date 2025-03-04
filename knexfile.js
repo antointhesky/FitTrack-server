@@ -24,5 +24,14 @@ export default {
         port: process.env.DB_LOCAL_PORT,
         charset: "utf8",
       },
+
+  pool: {
+    min: 0,   // Allow knex to close unused connections
+    max: 2,   // Reduce max connections to avoid exceeding the limit
+    acquireTimeoutMillis: 5000,  // Reduce timeout for acquiring a connection
+    idleTimeoutMillis: 10000,  // Close unused connections sooner
+    createTimeoutMillis: 3000,  
+    destroyTimeoutMillis: 5000, 
+  },
 };
 

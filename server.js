@@ -27,11 +27,12 @@ knex.raw("SELECT 1")
   .then(() => console.log("✅ Successfully connected to the database!"))
   .catch((err) => {
     console.error("❌ Database connection failed:", err.message);
-    process.exit(1); // Stop the server if DB connection fails
-  });
+    process.exit(1);
+  })
+  .finally(() => knex.destroy());
 
 // Updated CORS configuration
-const { PORT = 5050, FRONTEND_URL = "http://localhost:5173" } = process.env;
+const { PORT = 5050, FRONTEND_URL = "http://fitontrack.netlify.app" } = process.env;
 app.use(cors({
   origin: FRONTEND_URL.replace(/\/$/, ""), // Remove trailing slash if present
   methods: "GET,POST,PUT,DELETE,PATCH",
@@ -127,3 +128,18 @@ app.get("/exercises/bodyparts", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });
+
+// ✅ Gracefully close database connections on shutdown
+const shutdownHandler = () => {
+  console.log("⚠️ Shutting down server...");
+  server.close(() => {
+    console.log("✅ Server closed. Closing database connections...");
+    knex.destroy().then(() => {
+      console.log("✅ Database connections closed.");
+      process.exit(0);
+    });
+  });
+};
+
+process.on("SIGINT", shutdownHandler);  // Handle Ctrl+C (local development)
+process.on("SIGTERM", shutdownHandler); // Handle termination signals (production)
