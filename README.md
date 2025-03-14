@@ -5,7 +5,7 @@ FitTrack Server is the backend for the FitTrack fitness tracking application. It
 Built with Node.js, Express, and MySQL, it ensures efficient data management and seamless integration with the FitTrack client.
 
 ###Installation
-1. Clone the Repository: git clone https://github.com/antointhesky/FitTrack-Server.git
+1. Clone the Repository: git clone https://github.com/antointhesky/FitTrack-server.git
 2. Navigate to the Server Directory: cd FitTrack-Server
 3. Install Dependencies: npm install
    
