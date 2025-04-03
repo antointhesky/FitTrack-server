@@ -210,34 +210,30 @@ export const deleteSession = async (req, res) => {
 export const getCurrentSession = async (req, res) => {
   try {
     const currentSession = await knex("sessions")
-      .where({ is_draft: true })
       .orderBy("created_at", "desc")
       .first();
 
     if (!currentSession) {
-      return res.status(404).json({ message: "No ongoing session" });
+      return res.status(404).json({ message: "No session found" });
     }
 
     const exercises = await knex("exercises")
-      .join(
-        "session_exercises",
-        "exercises.id",
-        "session_exercises.exercise_id"
-      )
+      .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
       .where("session_exercises.session_id", currentSession.id)
       .select(
         "exercises.id",
         "exercises.name",
         "exercises.calories_burned",
-        "exercises.workout_type"
+        "exercises.workout_type",
+        "exercises.duration",
+        "exercises.sets",
+        "exercises.reps",
+        "exercises.body_part"
       );
 
     res.status(200).json({ ...currentSession, exercises });
   } catch (error) {
-    console.error("Error fetching current session:", error);
-    res
-      .status(500)
-      .json({ message: `Error fetching current session: ${error.message}` });
+    res.status(500).json({ message: `Error fetching session: ${error.message}` });
   }
 };
 
