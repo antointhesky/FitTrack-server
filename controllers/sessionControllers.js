@@ -85,9 +85,7 @@ export const addExerciseToSession = async (req, res) => {
   }
 
   try {
-    const session = await knex("sessions")
-      .where({ id: sessionId, is_draft: true })
-      .first();
+    const session = await knex("sessions").where({ id: sessionId }).first();
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
@@ -100,9 +98,9 @@ export const addExerciseToSession = async (req, res) => {
 
     res.status(201).json({ message: "Exercise added to session successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: `Please start your session from the homepage: ${error.message}` });
+    res.status(500).json({
+      message: `Please start your session from the homepage: ${error.message}`,
+    });
   }
 };
 
@@ -119,8 +117,6 @@ export const updateSession = async (req, res) => {
         exercise_id: exercise.id,
       });
     }
-
-    await knex("sessions").where({ id: sessionId }).update({ is_draft: false });
 
     res.status(200).json({ message: "Session updated and saved successfully" });
   } catch (error) {
@@ -218,7 +214,11 @@ export const getCurrentSession = async (req, res) => {
     }
 
     const exercises = await knex("exercises")
-      .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
+      .join(
+        "session_exercises",
+        "exercises.id",
+        "session_exercises.exercise_id"
+      )
       .where("session_exercises.session_id", currentSession.id)
       .select(
         "exercises.id",
@@ -233,7 +233,9 @@ export const getCurrentSession = async (req, res) => {
 
     res.status(200).json({ ...currentSession, exercises });
   } catch (error) {
-    res.status(500).json({ message: `Error fetching session: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error fetching session: ${error.message}` });
   }
 };
 
@@ -242,7 +244,7 @@ export const createOrUpdateSession = async (req, res) => {
 
   try {
     let currentSession = await knex("sessions")
-      .where({ is_draft: true })
+      .orderBy("created_at", "desc")
       .first();
 
     if (!currentSession) {
@@ -272,11 +274,9 @@ export const createOrUpdateSession = async (req, res) => {
       session_id: currentSession.id,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error creating or updating session",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error creating or updating session",
+      error: error.message,
+    });
   }
 };
