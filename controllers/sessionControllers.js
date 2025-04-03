@@ -102,7 +102,7 @@ export const addExerciseToSession = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: `Error adding exercise to session: ${error.message}` });
+      .json({ message: `Error adding exercise, please start your session from the homepage: ${error.message}` });
   }
 };
 
