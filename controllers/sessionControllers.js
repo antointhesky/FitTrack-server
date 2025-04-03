@@ -6,7 +6,9 @@ export const createSession = async (req, res) => {
   const { exercises, goal_ids } = req.body;
 
   if (!Array.isArray(exercises) || exercises.length === 0) {
-    return res.status(400).json({ message: "Exercises must be a non-empty array" });
+    return res
+      .status(400)
+      .json({ message: "Exercises must be a non-empty array" });
   }
 
   const dateOnly = new Date().toISOString().split("T")[0];
@@ -68,7 +70,7 @@ export const getSessionById = async (req, res) => {
         "exercises.workout_type"
       );
 
-    res.status(200).json({ ...session, exercises }); 
+    res.status(200).json({ ...session, exercises });
   } catch (error) {
     res.status(500).json({ message: `Error fetching session: ${error}` });
   }
@@ -83,7 +85,9 @@ export const addExerciseToSession = async (req, res) => {
   }
 
   try {
-    const session = await knex("sessions").where({ id: sessionId, is_draft: true }).first();
+    const session = await knex("sessions")
+      .where({ id: sessionId, is_draft: true })
+      .first();
 
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
@@ -96,7 +100,9 @@ export const addExerciseToSession = async (req, res) => {
 
     res.status(201).json({ message: "Exercise added to session successfully" });
   } catch (error) {
-    res.status(500).json({ message: `Error adding exercise to session: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error adding exercise to session: ${error.message}` });
   }
 };
 
@@ -114,7 +120,9 @@ export const updateSession = async (req, res) => {
       });
     }
 
-    res.status(200).json({ message: "Session updated successfully" });
+    await knex("sessions").where({ id: sessionId }).update({ is_draft: false });
+
+    res.status(200).json({ message: "Session updated and saved successfully" });
   } catch (error) {
     res.status(500).json({
       message: "Error updating session",
@@ -163,9 +171,11 @@ export const getAllSessions = async (_req, res) => {
             "exercises.name",
             "exercises.calories_burned",
             "exercises.workout_type",
-            "exercises.sets", 
+            "exercises.sets",
             "exercises.reps",
-            knex.raw("ROUND(TIME_TO_SEC(exercises.duration) / 60, 2) as duration") // Round to 2 decimal places
+            knex.raw(
+              "ROUND(TIME_TO_SEC(exercises.duration) / 60, 2) as duration"
+            ) // Round to 2 decimal places
           );
 
         console.log("Exercises for session:", exercises);
@@ -176,7 +186,6 @@ export const getAllSessions = async (_req, res) => {
 
     return res.status(200).json(sessionsWithExercises);
   } catch (error) {
-
     return res.status(500).json({
       message: `Error encountered while fetching sessions: ${error.message}`,
     });
@@ -200,7 +209,6 @@ export const deleteSession = async (req, res) => {
 
 export const getCurrentSession = async (req, res) => {
   try {
-   
     const currentSession = await knex("sessions")
       .where({ is_draft: true })
       .orderBy("created_at", "desc")
@@ -211,14 +219,25 @@ export const getCurrentSession = async (req, res) => {
     }
 
     const exercises = await knex("exercises")
-      .join("session_exercises", "exercises.id", "session_exercises.exercise_id")
+      .join(
+        "session_exercises",
+        "exercises.id",
+        "session_exercises.exercise_id"
+      )
       .where("session_exercises.session_id", currentSession.id)
-      .select("exercises.id", "exercises.name", "exercises.calories_burned", "exercises.workout_type");
+      .select(
+        "exercises.id",
+        "exercises.name",
+        "exercises.calories_burned",
+        "exercises.workout_type"
+      );
 
     res.status(200).json({ ...currentSession, exercises });
   } catch (error) {
     console.error("Error fetching current session:", error);
-    res.status(500).json({ message: `Error fetching current session: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error fetching current session: ${error.message}` });
   }
 };
 
@@ -226,22 +245,23 @@ export const createOrUpdateSession = async (req, res) => {
   const { exercises } = req.body;
 
   try {
-
-    let currentSession = await knex("sessions").where({ is_draft: true }).first();
+    let currentSession = await knex("sessions")
+      .where({ is_draft: true })
+      .first();
 
     if (!currentSession) {
-
       const [newSessionId] = await knex("sessions").insert({
         date: new Date().toISOString().split("T")[0],
-        is_draft: true, 
+        is_draft: true,
       });
 
       currentSession = { id: newSessionId };
     }
-    
+
     if (exercises && exercises.length > 0) {
-     
-      await knex("session_exercises").where({ session_id: currentSession.id }).del();
+      await knex("session_exercises")
+        .where({ session_id: currentSession.id })
+        .del();
 
       await knex("session_exercises").insert(
         exercises.map((exercise) => ({
@@ -256,7 +276,11 @@ export const createOrUpdateSession = async (req, res) => {
       session_id: currentSession.id,
     });
   } catch (error) {
-    
-    res.status(500).json({ message: "Error creating or updating session", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error creating or updating session",
+        error: error.message,
+      });
   }
 };
